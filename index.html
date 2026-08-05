@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a43">
+<title>Elsa FD Incident Command</title>
+<style>
+:root{--navy:#102a43;--red:#b4232c;--gold:#f2c94c;--bg:#eef3f8;--card:#fff;--line:#cbd5e1;--text:#14212b}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;border-bottom:5px solid var(--red);padding:14px 18px}
+h1{font-size:22px;margin:0}.sub{font-size:13px;opacity:.9;margin-top:3px}
+.wrap{max-width:1500px;margin:auto;padding:14px}
+.grid{display:grid;gap:12px}.top{grid-template-columns:2fr 1fr 1fr 1fr}.main{grid-template-columns:1.1fr 2.2fr 1.25fr}.three{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.card h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;font-size:16px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{min-height:125px;resize:vertical}.form2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.metrics{grid-template-columns:repeat(7,1fr);margin:12px 0}.metric{text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px}
+.num{font-size:23px;font-weight:800;color:var(--navy)}.lbl{font-size:12px;color:#5d6975}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button{border:0;border-radius:10px;padding:11px 14px;font-weight:750;cursor:pointer}
+.red{background:var(--red);color:#fff}.navy{background:var(--navy);color:#fff}.light{background:#e5ecf3}.gold{background:var(--gold)}.small{padding:8px 10px;font-size:13px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:48px}
+.check input{width:22px;height:22px}.units{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.unit{border:2px solid #9ca3af;border-radius:13px;padding:10px;background:#f8fafc;cursor:pointer}.unit h3{margin:0 0 5px}.row{font-size:13px;margin:3px 0}
+.Responding{border-color:#60a5fa;background:#eff6ff}.OnScene,.Assigned{border-color:#22c55e;background:#f0fdf4}.Staging{border-color:#eab308;background:#fefce8}.Rehab{border-color:#f97316;background:#fff7ed}.Available{border-color:#14b8a6;background:#f0fdfa}.Released{opacity:.65}
+table{width:100%;border-collapse:collapse}th,td{font-size:13px;text-align:left;border-bottom:1px solid var(--line);padding:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}
+.box{width:min(520px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:18px}.note{font-size:12px;color:#65717d;margin-top:12px}.parTimer{font-size:28px;font-weight:800;text-align:center;padding:14px;border:2px solid var(--red);border-radius:12px;background:#fff7f7;color:var(--red)}.parDue{animation:pulse 1s infinite;background:#ffe0e0}@keyframes pulse{50%{transform:scale(1.02)}}
+@media(max-width:1050px){.top{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(4,1fr)}.main{grid-template-columns:1fr}.units{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.top,.three,.form2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.units{grid-template-columns:1fr}.checks{grid-template-columns:1fr}h1{font-size:18px}}
+@media print{header{position:static}.bar,.note{display:none}body{background:#fff}.card,.metric{box-shadow:none}}
+</style>
+</head>
+<body>
+<header><h1>ELSA FIRE DEPARTMENT — INCIDENT COMMAND</h1><div class="sub">Digital Command Board • Touch Friendly • Saves on This Device • Version 2.3.1</div></header>
+<div class="wrap">
+  <div class="grid top">
+    <div class="card"><label>Incident Address</label><input id="address" placeholder="Enter incident address"></div>
+    <div class="card"><label>Case Number</label><input id="caseNo" placeholder="Case #"></div>
+    <div class="card"><label>Incident Commander</label><input id="ic" placeholder="Name / call sign"></div>
+    <div class="card"><label>Incident Type</label><select id="incidentType"><option>Structure Fire</option><option>Brush/Wildland Fire</option><option>MVC</option><option>HazMat</option><option>Search & Rescue</option><option>Other</option></select></div>
+  </div>
+
+  <div class="grid three" style="margin-top:12px">
+    <section class="card">
+      <h2>Command Assignments</h2>
+      <div id="commandAssignments" class="checks"></div>
+    </section>
+    <section class="card">
+      <h2>Water Supply</h2>
+      <div class="form2">
+        <div><label>Method</label><select id="waterSupplyMethod"><option value="">Not Selected</option><option>Hydrant</option><option>Tanker Shuttle</option></select></div>
+        <div><label>Assigned Unit</label><select id="waterSupplyUnit"></select></div>
+      </div>
+      <div style="margin-top:9px"><label>Notes</label><input id="waterSupplyNotes" placeholder="Hydrant location, fill site, dump site, etc."></div>
+    </section>
+    <section class="card">
+      <h2>Quick Command View</h2>
+      <div class="row"><b>Incident Command:</b> <span id="qIC">—</span></div>
+      <div class="row"><b>Safety:</b> <span id="qSafety">—</span></div>
+      <div class="row"><b>Operations:</b> <span id="qOperations">—</span></div>
+      <div class="row"><b>Staging Officer:</b> <span id="qStaging">—</span></div>
+      <div class="row"><b>Water Supply:</b> <span id="qWater">—</span></div>
+    </section>
+  </div>
+
+  <div class="grid metrics">
+    <div class="metric"><div class="num" id="mUnits">0</div><div class="lbl">Units Active</div></div>
+    <div class="metric"><div class="num" id="mPersonnel">0</div><div class="lbl">Personnel</div></div>
+    <div class="metric"><div class="num" id="mWater">0</div><div class="lbl">Water Gallons</div></div>
+    <div class="metric"><div class="num" id="mMutual">0</div><div class="lbl">Mutual Aid</div></div>
+    <div class="metric"><div class="num" id="mPatients">0</div><div class="lbl">Patients</div></div>
+    <div class="metric"><div class="num" id="mMissing">0</div><div class="lbl">Unaccounted</div></div>
+    <div class="metric"><div class="num" id="mDuration">00:00:00</div><div class="lbl">Duration</div></div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h2>PAR Reminder</h2>
+    <div id="parTimer" class="parTimer">Not Started</div>
+    <div class="note">Completing PAR starts a new 15-minute countdown.</div>
+  </div>
+
+  <div class="bar">
+    <button class="red" onclick="startIncident()">Start Incident</button>
+    <button class="navy" onclick="saveAll(true)">Save</button>
+    <button class="light" onclick="window.print()">Print / Save PDF</button>
+    <button class="gold" onclick="resetIncident()">New Incident</button>
+  </div>
+
+  <div class="grid main">
+    <section class="card"><h2>Operational Benchmarks</h2><div id="benchmarks" class="checks"></div></section>
+    <section class="card"><h2>Elsa Apparatus</h2><div id="units" class="units"></div></section>
+    <section class="card">
+      <h2>Mutual Aid / Staging</h2>
+      <div class="form2"><input id="maDept" placeholder="Department"><input id="maUnit" placeholder="Unit"><input id="maPersonnel" type="number" min="0" placeholder="Personnel"><select id="maAssignment"></select></div>
+      <button class="navy small" style="margin-top:8px" onclick="addMA()">Add Unit</button>
+      <table><thead><tr><th>Dept.</th><th>Unit</th><th>Pers.</th><th>Assignment</th></tr></thead><tbody id="maBody"></tbody></table>
+    </section>
+  </div>
+
+  <div class="grid three" style="margin-top:12px">
+    <section class="card"><h2>Incident Timeline</h2><div id="timeline"></div></section>
+    <section class="card"><h2>Occupants / Patients</h2><div class="form2">
+      <div><label>Occupants Reported</label><input id="occReported" type="number" min="0" value="0"></div>
+      <div><label>Occupants Located</label><input id="occLocated" type="number" min="0" value="0"></div>
+      <div><label>Rescued</label><input id="rescued" type="number" min="0" value="0"></div>
+      <div><label>Patients</label><input id="patients" type="number" min="0" value="0"></div>
+      <div><label>Transported</label><input id="transported" type="number" min="0" value="0"></div>
+      <div><label>Unaccounted</label><input id="unaccounted" type="number" min="0" value="0"></div>
+    </div></section>
+    <section class="card"><h2>CAN Report / Command Notes</h2><textarea id="notes" placeholder="Conditions, Actions, Needs, hazards and resource requests..."></textarea></section>
+  </div>
+
+  <section class="card" style="margin-top:12px"><h2>Running Command Log</h2>
+    <div class="form2"><input id="logEntry" placeholder="Enter a command log note"><button class="navy" onclick="addLog()">Add Timestamped Entry</button></div>
+    <table><thead><tr><th style="width:110px">Time</th><th>Entry</th></tr></thead><tbody id="logBody"></tbody></table>
+  </section>
+  <div class="note">Information is stored only in this browser on this device. Use Print / Save PDF for a permanent incident record.</div>
+</div>
+
+<div id="actionModal" class="modal"><div class="box">
+  <h2 id="actionModalTitle">Action</h2>
+  <div id="actionModalBody"></div>
+  <div class="bar">
+    <button class="red" id="actionModalSave">Save</button>
+    <button class="light" onclick="closeActionModal()">Cancel</button>
+  </div>
+</div></div>
+
+<div id="modal" class="modal"><div class="box"><h2 id="modalTitle">Unit</h2>
+  <div class="form2">
+    <div><label>Personnel</label><input id="uPersonnel" type="number" min="0"></div>
+    <div><label>Water Capacity</label><input id="uWater" type="number" min="0"></div>
+    <div><label>Status</label><select id="uStatus"><option>Not Responding</option><option>Responding</option><option>On Scene</option><option>Assigned</option><option>Staging</option><option>Rehab</option><option>Available</option><option>Released</option></select></div>
+    <div><label>Assignment</label><select id="uAssignment"></select></div>
+    <div><label>PAR</label><select id="uPAR"><option>Pending</option><option>PAR Complete</option><option>No Contact</option></select></div>
+  </div>
+  <div class="bar"><button class="red" onclick="saveUnit()">Save Unit</button><button class="light" onclick="closeModal()">Cancel</button></div>
+</div></div>
+
+<script>
+const apparatus=[
+["Delta 1","Command 1",0,false],
+["Delta 2","Command 2",0,false],
+["Delta 3","Command 3",0,false],
+["Truck 1","Truck",500,false],
+["Rescue 2","Rescue",750,false],
+["Squad 3","Squad",500,false],
+["Brush 4","Brush",0,true],
+["Brush 5","Brush",0,true],
+["Brush 6","Brush",0,true],
+["Tank 7","Tank",3000,false],
+["Brush 8","Brush",0,true],
+["Utility 1","Utility",0,false]
+];
+const benchmarkNames=["Mutual Aid Requested","EMS Requested","Primary Search Complete","Secondary Search Complete","Ventilation Complete","Fire Under Control","Overhaul Complete","Power Shut Off","Water Shut Off","PAR Complete","Fire Marshal Notified"];
+const assignmentOptions=["","Incident Command","Safety","Operations","Staging Officer","Fire Attack","Primary Search","Secondary Search","Ventilation","Division A","Division B","Division C","Division D","Exposure 1","Exposure 2","RIT","Water Supply","Rehab","Medical","Traffic","Investigation"];
+const timelineNames=["Dispatch","Enroute","On Scene","360 Complete","Water on Fire","Primary Search Complete","Secondary Search Complete","Control","PAR","Clear"];
+let state={units:{},benchmarks:{},mutualAid:[],logs:[],timeline:{},startTime:null,fields:{},parDueAt:null,parCount:0},activeUnit=null;
+const $=id=>document.getElementById(id);
+function fillAssignmentMenus(){
+  [$("uAssignment"),$("maAssignment")].forEach(menu=>{
+    menu.innerHTML="";
+    assignmentOptions.forEach(v=>{
+      const o=document.createElement("option");
+      o.value=v;
+      o.textContent=v||"Select Assignment";
+      menu.appendChild(o);
+    });
+  });
+}
+function fillWaterSupplyUnits(){
+  const menu=$("waterSupplyUnit");
+  menu.innerHTML='<option value="">Not Selected</option>';
+  apparatus.forEach(([n])=>menu.insertAdjacentHTML("beforeend",`<option>${n}</option>`));
+  state.mutualAid.forEach(m=>{
+    if(m.unit){
+      const o=document.createElement("option");
+      o.value=(m.dept+" "+m.unit).trim();
+      o.textContent=o.value;
+      menu.appendChild(o);
+    }
+  });
+  menu.value=(state.fields&&state.fields.waterSupplyUnit)||"";
+}
+function assignedTo(role){
+  const a=[];
+  Object.entries(state.units).forEach(([n,u])=>{if(u.assignment===role)a.push(n)});
+  state.mutualAid.forEach(m=>{if(m.assignment===role)a.push(`${m.dept} ${m.unit}`.trim())});
+  return a;
+}
+function renderCommandAssignments(){
+  const roles=["Incident Command","Safety","Operations","Staging Officer"];
+  $("commandAssignments").innerHTML=roles.map(r=>`<div class="check"><span><b>${r}:</b> ${assignedTo(r).join(", ")||"Unassigned"}</span></div>`).join("");
+  $("qIC").textContent=assignedTo("Incident Command").join(", ")||"—";
+  $("qSafety").textContent=assignedTo("Safety").join(", ")||"—";
+  $("qOperations").textContent=assignedTo("Operations").join(", ")||"—";
+  $("qStaging").textContent=assignedTo("Staging Officer").join(", ")||"—";
+  $("qWater").textContent=[$("waterSupplyMethod").value,$("waterSupplyUnit").value].filter(Boolean).join(" — ")||"—";
+}
+function init(){
+ apparatus.forEach(([n,t,w,manual])=>state.units[n]={type:t,personnel:0,water:w,status:"Not Responding",assignment:"",par:"Pending",manualWater:manual});
+ load();fillAssignmentMenus();renderBenchmarks();renderUnits();renderTimeline();renderMA();fillWaterSupplyUnits();renderLogs();bind();updateMetrics();renderCommandAssignments();updatePARTimer();setInterval(tick,1000)
+}
+function bind(){["address","caseNo","ic","incidentType","occReported","occLocated","rescued","patients","transported","unaccounted","notes","waterSupplyMethod","waterSupplyUnit","waterSupplyNotes"].forEach(id=>$(id).addEventListener("input",()=>{saveAll(false);updateMetrics();renderCommandAssignments()}))}
+function renderBenchmarks(){
+  $("benchmarks").innerHTML="";
+  benchmarkNames.forEach((n,i)=>{
+    let l=document.createElement("label");
+    l.className="check";
+    l.innerHTML=`<input type="checkbox" id="b${i}"><span>${n}</span>`;
+    $("benchmarks").appendChild(l);
+    $("b"+i).checked=!!state.benchmarks[n];
+    $("b"+i).onchange=e=>handleBenchmark(n,e.target);
+  });
+}
+function handleBenchmark(name,checkbox){
+  if(!checkbox.checked){
+    state.benchmarks[name]=false;
+    saveAll(false);
+    return;
+  }
+  if(name==="Mutual Aid Requested"){
+    openMutualAidRequestModal(checkbox);
+    return;
+  }
+  if(name==="Power Shut Off"){
+    openPowerShutoffModal(checkbox);
+    return;
+  }
+  state.benchmarks[name]=true;
+  addLog(name);
+  if(name==="PAR Complete"){
+    completePAR();
+  }
+  saveAll(false);
+}
+function openMutualAidRequestModal(checkbox){
+  $("actionModalTitle").textContent="Mutual Aid Requested";
+  $("actionModalBody").innerHTML='<label>Departments Requested</label><textarea id="requestedDepartments" placeholder="List departments requested, separated by commas"></textarea>';
+  $("actionModalSave").onclick=()=>{
+    const depts=$("requestedDepartments").value.trim();
+    if(!depts){alert("Please list at least one department.");return;}
+    state.benchmarks["Mutual Aid Requested"]=true;
+    addLog(`Mutual Aid Requested — ${depts}`);
+    closeActionModal();
+    saveAll(false);
+  };
+  $("actionModal").classList.add("open");
+}
+function openPowerShutoffModal(checkbox){
+  $("actionModalTitle").textContent="Power Shut Off";
+  $("actionModalBody").innerHTML='<label>Utility Provider</label><select id="powerProvider"><option>AEP</option><option>MVEC</option></select>';
+  $("actionModalSave").onclick=()=>{
+    const provider=$("powerProvider").value;
+    state.benchmarks["Power Shut Off"]=true;
+    addLog(`Power Shut Off — ${provider}`);
+    closeActionModal();
+    saveAll(false);
+  };
+  $("actionModal").classList.add("open");
+}
+function closeActionModal(){$("actionModal").classList.remove("open")}
+function completePAR(){
+  state.parCount=Number(state.parCount||0)+1;
+  const t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  state.timeline[`PAR ${state.parCount}`]=t;
+  state.parDueAt=Date.now()+15*60*1000;
+  addLog(`PAR Completed #${state.parCount}`);
+  renderTimeline();
+  updatePARTimer();
+}
+function updatePARTimer(){
+  const el=$("parTimer");
+  if(!el)return;
+  if(!state.parDueAt){
+    el.textContent="Not Started";
+    el.classList.remove("parDue");
+    return;
+  }
+  const remaining=Math.floor((Number(state.parDueAt)-Date.now())/1000);
+  if(remaining<=0){
+    el.textContent="PAR DUE NOW";
+    el.classList.add("parDue");
+    return;
+  }
+  el.classList.remove("parDue");
+  const m=Math.floor(remaining/60),s=remaining%60;
+  el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+function renderUnits(){$("units").innerHTML="";apparatus.forEach(([n])=>{let u=state.units[n],d=document.createElement("div");d.className="unit "+u.status.replaceAll(" ","");d.innerHTML=`<h3>${n}</h3><div class="row"><b>${u.type}</b></div><div class="row">Personnel: ${u.personnel}</div><div class="row">Water: ${u.water} gal</div><div class="row">Status: <b>${u.status}</b></div><div class="row">Assignment: ${u.assignment||"—"}</div><div class="row">PAR: ${u.par}</div>`;d.onclick=()=>openUnit(n);$("units").appendChild(d)});updateMetrics()}
+function openUnit(n){
+  activeUnit=n;
+  let u=state.units[n];
+  $("modalTitle").textContent=n;
+  $("uPersonnel").value=u.personnel;
+  $("uWater").value=u.water;
+  $("uWater").disabled=!u.manualWater;
+  $("uWater").title=u.manualWater?"Enter current tank capacity":"Preloaded apparatus capacity";
+  $("uStatus").value=u.status;
+  $("uAssignment").value=u.assignment;
+  $("uPAR").value=u.par;
+  $("modal").classList.add("open");
+}
+function closeModal(){$("modal").classList.remove("open")}
+function saveUnit(){let u=state.units[activeUnit];u.personnel=Number($("uPersonnel").value||0);if(u.manualWater)u.water=Number($("uWater").value||0);u.status=$("uStatus").value;u.assignment=$("uAssignment").value;u.par=$("uPAR").value;addLog(`${activeUnit}: ${u.status}${u.assignment?" — "+u.assignment:""}`);closeModal();renderUnits();renderCommandAssignments();saveAll(false)}
+function renderTimeline(){
+  $("timeline").innerHTML="";
+  const names=[...timelineNames,...Object.keys(state.timeline).filter(k=>k.startsWith("PAR ")).sort((a,b)=>Number(a.split(" ")[1])-Number(b.split(" ")[1]))];
+  names.forEach(n=>{
+    let d=document.createElement("div");
+    d.className="form2";
+    d.style.marginBottom="7px";
+    d.innerHTML=`<button class="light small">${n}</button><input placeholder="Time" value="${state.timeline[n]||""}">`;
+    d.querySelector("button").onclick=()=>{
+      let t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+      state.timeline[n]=t;
+      d.querySelector("input").value=t;
+      addLog(n);
+      saveAll(false);
+    };
+    d.querySelector("input").oninput=e=>{state.timeline[n]=e.target.value;saveAll(false)};
+    $("timeline").appendChild(d);
+  });
+}
+function addMA(){let m={dept:$("maDept").value,unit:$("maUnit").value,personnel:Number($("maPersonnel").value||0),assignment:$("maAssignment").value};if(!m.dept&&!m.unit)return;state.mutualAid.push(m);["maDept","maUnit","maPersonnel","maAssignment"].forEach(x=>$(x).value="");renderMA();fillWaterSupplyUnits();renderCommandAssignments();addLog(`Mutual aid added: ${m.dept} ${m.unit}`);saveAll(false)}
+function renderMA(){$("maBody").innerHTML="";state.mutualAid.forEach((m,i)=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${m.dept}</td><td>${m.unit}</td><td>${m.personnel}</td><td>${m.assignment} <button class="small light" onclick="removeMA(${i})">×</button></td>`;$("maBody").appendChild(tr)});updateMetrics()}
+function removeMA(i){state.mutualAid.splice(i,1);renderMA();fillWaterSupplyUnits();renderCommandAssignments();saveAll(false)}
+function addLog(text){let entry=text||$("logEntry").value.trim();if(!entry)return;state.logs.unshift({time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),entry});$("logEntry").value="";renderLogs();saveAll(false)}
+function renderLogs(){$("logBody").innerHTML="";state.logs.forEach(l=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${l.time}</td><td>${l.entry}</td>`;$("logBody").appendChild(tr)})}
+function startIncident(){
+  if(!state.startTime){
+    state.startTime=Date.now();
+    if(!state.timeline.Dispatch){
+      state.timeline.Dispatch=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    }
+    tick();
+    renderTimeline();
+    addLog("Incident command board started");
+    saveAll(false);
+  }else{
+    tick();
+    alert("The incident timer is already running.");
+  }
+}
+function collect(){let f={};["address","caseNo","ic","incidentType","occReported","occLocated","rescued","patients","transported","unaccounted","notes","waterSupplyMethod","waterSupplyUnit","waterSupplyNotes"].forEach(id=>f[id]=$(id).value);return f}
+function saveAll(show){state.fields=collect();localStorage.setItem("elsaFDIC",JSON.stringify(state));if(show)alert("Incident data saved on this device.")}
+function load(){
+  let raw=localStorage.getItem("elsaFDIC");
+  if(raw){
+    try{
+      let saved=JSON.parse(raw);
+      if(saved && typeof saved==="object"){
+        state={
+          units:(saved.units && typeof saved.units==="object")?saved.units:{},
+          benchmarks:(saved.benchmarks && typeof saved.benchmarks==="object")?saved.benchmarks:{},
+          mutualAid:Array.isArray(saved.mutualAid)?saved.mutualAid:[],
+          logs:Array.isArray(saved.logs)?saved.logs:[],
+          timeline:(saved.timeline && typeof saved.timeline==="object")?saved.timeline:{},
+          startTime:saved.startTime?Number(saved.startTime):null,
+          fields:(saved.fields && typeof saved.fields==="object")?saved.fields:{},
+          parDueAt:saved.parDueAt?Number(saved.parDueAt):null,
+          parCount:Number(saved.parCount||0)
+        };
+      }
+    }catch(e){
+      console.error("Saved data could not be read; starting with a clean board.",e);
+      localStorage.removeItem("elsaFDIC");
+    }
+  }
+  apparatus.forEach(([n,t,w,manual])=>{
+    let old=state.units[n]||{};
+    state.units[n]={
+      type:old.type||t,
+      personnel:Number(old.personnel||0),
+      water:manual?Number(old.water||0):Number(w||0),
+      status:old.status||"Not Responding",
+      assignment:old.assignment==="Interior"?"Fire Attack":(old.assignment==="Command"?"Incident Command":(old.assignment==="Staging"?"Staging Officer":(old.assignment||""))),
+      par:old.par||"Pending",
+      manualWater:manual
+    };
+  });
+  Object.entries(state.fields||{}).forEach(([k,v])=>{
+    if($(k))$(k).value=v;
+  });
+}
+function updateMetrics(){
+  let active=Object.values(state.units).filter(u=>!["Not Responding","Released"].includes(u.status));
+  let onScene=Object.values(state.units).filter(u=>u.status==="On Scene");
+  $("mUnits").textContent=active.length;
+  $("mPersonnel").textContent=active.reduce((s,u)=>s+Number(u.personnel||0),0)+state.mutualAid.reduce((s,m)=>s+Number(m.personnel||0),0);
+  $("mWater").textContent=onScene.reduce((s,u)=>s+Number(u.water||0),0);
+  $("mMutual").textContent=state.mutualAid.length;
+  $("mPatients").textContent=Number($("patients").value||0);
+  $("mMissing").textContent=Number($("unaccounted").value||0);
+}
+function tick(){
+  updatePARTimer();
+  if(!state.startTime){
+    $("mDuration").textContent="00:00:00";
+    return;
+  }
+  let elapsed=Math.max(0,Math.floor((Date.now()-Number(state.startTime))/1000));
+  let h=Math.floor(elapsed/3600);
+  let m=Math.floor((elapsed%3600)/60);
+  let s=elapsed%60;
+  $("mDuration").textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+function resetIncident(){if(confirm("Clear all incident data and begin a new incident?")){localStorage.removeItem("elsaFDIC");location.reload()}}
+try{
+  init();
+}catch(error){
+  console.error(error);
+  document.body.insertAdjacentHTML("beforeend",
+    `<div style="margin:20px;padding:18px;background:#fff3cd;border:2px solid #b4232c;border-radius:12px;font-family:Arial">
+      <strong>The command board could not finish loading.</strong><br>
+      Clear this website’s saved data or tap “New Incident,” then reload.<br>
+      Error: ${String(error.message||error)}
+    </div>`);
+}
+</script>
+</body>
+</html>
