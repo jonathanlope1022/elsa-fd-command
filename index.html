@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a43">
+<title>Elsa FD Incident Command</title>
+<style>
+:root{--navy:#102a43;--red:#b4232c;--gold:#f2c94c;--bg:#eef3f8;--card:#fff;--line:#cbd5e1;--text:#14212b}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;border-bottom:5px solid var(--red);padding:14px 18px}
+h1{font-size:22px;margin:0}.sub{font-size:13px;opacity:.9;margin-top:3px}
+.wrap{max-width:1500px;margin:auto;padding:14px}
+.grid{display:grid;gap:12px}.top{grid-template-columns:2fr 1fr 1fr 1fr}.main{grid-template-columns:1.1fr 2.2fr 1.25fr}.three{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.card h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;font-size:16px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{min-height:125px;resize:vertical}.form2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.metrics{grid-template-columns:repeat(7,1fr);margin:12px 0}.metric{text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px}
+.num{font-size:23px;font-weight:800;color:var(--navy)}.lbl{font-size:12px;color:#5d6975}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button{border:0;border-radius:10px;padding:11px 14px;font-weight:750;cursor:pointer}
+.red{background:var(--red);color:#fff}.navy{background:var(--navy);color:#fff}.light{background:#e5ecf3}.gold{background:var(--gold)}.small{padding:8px 10px;font-size:13px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:48px}
+.check input{width:22px;height:22px}.units{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.unit{border:2px solid #9ca3af;border-radius:13px;padding:10px;background:#f8fafc;cursor:pointer}.unit h3{margin:0 0 5px}.row{font-size:13px;margin:3px 0}
+.Responding{border-color:#60a5fa;background:#eff6ff}.OnScene,.Assigned{border-color:#22c55e;background:#f0fdf4}.Staging{border-color:#eab308;background:#fefce8}.Rehab{border-color:#f97316;background:#fff7ed}.Available{border-color:#14b8a6;background:#f0fdfa}.Released{opacity:.65}
+table{width:100%;border-collapse:collapse}th,td{font-size:13px;text-align:left;border-bottom:1px solid var(--line);padding:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}
+.box{width:min(520px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:18px}.note{font-size:12px;color:#65717d;margin-top:12px}
+@media(max-width:1050px){.top{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(4,1fr)}.main{grid-template-columns:1fr}.units{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.top,.three,.form2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.units{grid-template-columns:1fr}.checks{grid-template-columns:1fr}h1{font-size:18px}}
+@media print{header{position:static}.bar,.note{display:none}body{background:#fff}.card,.metric{box-shadow:none}}
+</style>
+</head>
+<body>
+<header><h1>ELSA FIRE DEPARTMENT — INCIDENT COMMAND</h1><div class="sub">Digital Command Board • Touch Friendly • Saves on This Device</div></header>
+<div class="wrap">
+  <div class="grid top">
+    <div class="card"><label>Incident Address</label><input id="address" placeholder="Enter incident address"></div>
+    <div class="card"><label>Case Number</label><input id="caseNo" placeholder="Case #"></div>
+    <div class="card"><label>Incident Commander</label><input id="ic" placeholder="Name / call sign"></div>
+    <div class="card"><label>Incident Type</label><select id="incidentType"><option>Structure Fire</option><option>Brush/Wildland Fire</option><option>MVC</option><option>HazMat</option><option>Search & Rescue</option><option>Other</option></select></div>
+  </div>
+
+  <div class="grid metrics">
+    <div class="metric"><div class="num" id="mUnits">0</div><div class="lbl">Units Active</div></div>
+    <div class="metric"><div class="num" id="mPersonnel">0</div><div class="lbl">Personnel</div></div>
+    <div class="metric"><div class="num" id="mWater">0</div><div class="lbl">Water Gallons</div></div>
+    <div class="metric"><div class="num" id="mMutual">0</div><div class="lbl">Mutual Aid</div></div>
+    <div class="metric"><div class="num" id="mPatients">0</div><div class="lbl">Patients</div></div>
+    <div class="metric"><div class="num" id="mMissing">0</div><div class="lbl">Unaccounted</div></div>
+    <div class="metric"><div class="num" id="mDuration">00:00</div><div class="lbl">Duration</div></div>
+  </div>
+
+  <div class="bar">
+    <button class="red" onclick="startIncident()">Start Incident</button>
+    <button class="navy" onclick="saveAll(true)">Save</button>
+    <button class="light" onclick="window.print()">Print / Save PDF</button>
+    <button class="gold" onclick="resetIncident()">New Incident</button>
+  </div>
+
+  <div class="grid main">
+    <section class="card"><h2>Operational Benchmarks</h2><div id="benchmarks" class="checks"></div></section>
+    <section class="card"><h2>Elsa Apparatus</h2><div id="units" class="units"></div></section>
+    <section class="card">
+      <h2>Mutual Aid / Staging</h2>
+      <div class="form2"><input id="maDept" placeholder="Department"><input id="maUnit" placeholder="Unit"><input id="maPersonnel" type="number" min="0" placeholder="Personnel"><input id="maAssignment" placeholder="Assignment"></div>
+      <button class="navy small" style="margin-top:8px" onclick="addMA()">Add Unit</button>
+      <table><thead><tr><th>Dept.</th><th>Unit</th><th>Pers.</th><th>Assignment</th></tr></thead><tbody id="maBody"></tbody></table>
+    </section>
+  </div>
+
+  <div class="grid three" style="margin-top:12px">
+    <section class="card"><h2>Incident Timeline</h2><div id="timeline"></div></section>
+    <section class="card"><h2>Occupants / Patients</h2><div class="form2">
+      <div><label>Occupants Reported</label><input id="occReported" type="number" min="0" value="0"></div>
+      <div><label>Occupants Located</label><input id="occLocated" type="number" min="0" value="0"></div>
+      <div><label>Rescued</label><input id="rescued" type="number" min="0" value="0"></div>
+      <div><label>Patients</label><input id="patients" type="number" min="0" value="0"></div>
+      <div><label>Transported</label><input id="transported" type="number" min="0" value="0"></div>
+      <div><label>Unaccounted</label><input id="unaccounted" type="number" min="0" value="0"></div>
+    </div></section>
+    <section class="card"><h2>CAN Report / Command Notes</h2><textarea id="notes" placeholder="Conditions, Actions, Needs, hazards and resource requests..."></textarea></section>
+  </div>
+
+  <section class="card" style="margin-top:12px"><h2>Running Command Log</h2>
+    <div class="form2"><input id="logEntry" placeholder="Enter a command log note"><button class="navy" onclick="addLog()">Add Timestamped Entry</button></div>
+    <table><thead><tr><th style="width:110px">Time</th><th>Entry</th></tr></thead><tbody id="logBody"></tbody></table>
+  </section>
+  <div class="note">Information is stored only in this browser on this device. Use Print / Save PDF for a permanent incident record.</div>
+</div>
+
+<div id="modal" class="modal"><div class="box"><h2 id="modalTitle">Unit</h2>
+  <div class="form2">
+    <div><label>Personnel</label><input id="uPersonnel" type="number" min="0"></div>
+    <div><label>Water Capacity</label><input id="uWater" type="number" min="0"></div>
+    <div><label>Status</label><select id="uStatus"><option>Not Responding</option><option>Responding</option><option>On Scene</option><option>Assigned</option><option>Staging</option><option>Rehab</option><option>Available</option><option>Released</option></select></div>
+    <div><label>Assignment</label><select id="uAssignment"><option></option><option>Command</option><option>Safety</option><option>Operations</option><option>Interior</option><option>Primary Search</option><option>Secondary Search</option><option>Ventilation</option><option>Division A</option><option>Division B</option><option>Division C</option><option>Division D</option><option>Exposure 1</option><option>Exposure 2</option><option>RIT</option><option>Water Supply</option><option>Staging</option><option>Rehab</option><option>Medical</option><option>Traffic</option><option>Investigation</option></select></div>
+    <div><label>PAR</label><select id="uPAR"><option>Pending</option><option>PAR Complete</option><option>No Contact</option></select></div>
+  </div>
+  <div class="bar"><button class="red" onclick="saveUnit()">Save Unit</button><button class="light" onclick="closeModal()">Cancel</button></div>
+</div></div>
+
+<script>
+const apparatus=[["Delta 1","Command 1"],["Delta 2","Command 2"],["Delta 3","Command 3"],["Truck 1","Truck"],["Rescue 2","Rescue"],["Squad 3","Squad"],["Brush 4","Brush"],["Brush 5","Brush"],["Brush 6","Brush"],["Tank 7","Tank"],["Brush 8","Brush"],["Utility 1","Utility"]];
+const benchmarkNames=["Mutual Aid Requested","EMS Requested","Primary Search Complete","Secondary Search Complete","Interior Attack Started","Ventilation Complete","Fire Under Control","Overhaul Complete","Power Shut Off","Water Shut Off","PAR Complete","Fire Marshal Notified"];
+const timelineNames=["Dispatch","Enroute","On Scene","360 Complete","Water on Fire","Primary Search Complete","Secondary Search Complete","Control","PAR","Clear"];
+let state={units:{},benchmarks:{},mutualAid:[],logs:[],timeline:{},startTime:null,fields:{}},activeUnit=null;
+const $=id=>document.getElementById(id);
+function init(){
+ apparatus.forEach(([n,t])=>state.units[n]={type:t,personnel:0,water:0,status:"Not Responding",assignment:"",par:"Pending"});
+ load();renderBenchmarks();renderUnits();renderTimeline();renderMA();renderLogs();bind();updateMetrics();setInterval(tick,1000)
+}
+function bind(){["address","caseNo","ic","incidentType","occReported","occLocated","rescued","patients","transported","unaccounted","notes"].forEach(id=>$(id).addEventListener("input",()=>{saveAll(false);updateMetrics()}))}
+function renderBenchmarks(){$("benchmarks").innerHTML="";benchmarkNames.forEach((n,i)=>{let l=document.createElement("label");l.className="check";l.innerHTML=`<input type="checkbox" id="b${i}"><span>${n}</span>`;$("benchmarks").appendChild(l);$("b"+i).checked=!!state.benchmarks[n];$("b"+i).onchange=e=>{state.benchmarks[n]=e.target.checked;if(e.target.checked)addLog(n);saveAll(false)}})}
+function renderUnits(){$("units").innerHTML="";apparatus.forEach(([n])=>{let u=state.units[n],d=document.createElement("div");d.className="unit "+u.status.replaceAll(" ","");d.innerHTML=`<h3>${n}</h3><div class="row"><b>${u.type}</b></div><div class="row">Personnel: ${u.personnel}</div><div class="row">Water: ${u.water} gal</div><div class="row">Status: <b>${u.status}</b></div><div class="row">Assignment: ${u.assignment||"—"}</div><div class="row">PAR: ${u.par}</div>`;d.onclick=()=>openUnit(n);$("units").appendChild(d)});updateMetrics()}
+function openUnit(n){activeUnit=n;let u=state.units[n];$("modalTitle").textContent=n;$("uPersonnel").value=u.personnel;$("uWater").value=u.water;$("uStatus").value=u.status;$("uAssignment").value=u.assignment;$("uPAR").value=u.par;$("modal").classList.add("open")}
+function closeModal(){$("modal").classList.remove("open")}
+function saveUnit(){let u=state.units[activeUnit];u.personnel=Number($("uPersonnel").value||0);u.water=Number($("uWater").value||0);u.status=$("uStatus").value;u.assignment=$("uAssignment").value;u.par=$("uPAR").value;addLog(`${activeUnit}: ${u.status}${u.assignment?" — "+u.assignment:""}`);closeModal();renderUnits();saveAll(false)}
+function renderTimeline(){$("timeline").innerHTML="";timelineNames.forEach(n=>{let d=document.createElement("div");d.className="form2";d.style.marginBottom="7px";d.innerHTML=`<button class="light small">${n}</button><input placeholder="Time" value="${state.timeline[n]||""}">`;d.querySelector("button").onclick=()=>{let t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});state.timeline[n]=t;d.querySelector("input").value=t;addLog(n);saveAll(false)};d.querySelector("input").oninput=e=>{state.timeline[n]=e.target.value;saveAll(false)};$("timeline").appendChild(d)})}
+function addMA(){let m={dept:$("maDept").value,unit:$("maUnit").value,personnel:Number($("maPersonnel").value||0),assignment:$("maAssignment").value};if(!m.dept&&!m.unit)return;state.mutualAid.push(m);["maDept","maUnit","maPersonnel","maAssignment"].forEach(x=>$(x).value="");renderMA();addLog(`Mutual aid added: ${m.dept} ${m.unit}`);saveAll(false)}
+function renderMA(){$("maBody").innerHTML="";state.mutualAid.forEach((m,i)=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${m.dept}</td><td>${m.unit}</td><td>${m.personnel}</td><td>${m.assignment} <button class="small light" onclick="removeMA(${i})">×</button></td>`;$("maBody").appendChild(tr)});updateMetrics()}
+function removeMA(i){state.mutualAid.splice(i,1);renderMA();saveAll(false)}
+function addLog(text){let entry=text||$("logEntry").value.trim();if(!entry)return;state.logs.unshift({time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),entry});$("logEntry").value="";renderLogs();saveAll(false)}
+function renderLogs(){$("logBody").innerHTML="";state.logs.forEach(l=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${l.time}</td><td>${l.entry}</td>`;$("logBody").appendChild(tr)})}
+function startIncident(){if(!state.startTime)state.startTime=Date.now();if(!state.timeline.Dispatch)state.timeline.Dispatch=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});renderTimeline();addLog("Incident command board started");saveAll(false)}
+function collect(){let f={};["address","caseNo","ic","incidentType","occReported","occLocated","rescued","patients","transported","unaccounted","notes"].forEach(id=>f[id]=$(id).value);return f}
+function saveAll(show){state.fields=collect();localStorage.setItem("elsaFDIC",JSON.stringify(state));if(show)alert("Incident data saved on this device.")}
+function load(){let raw=localStorage.getItem("elsaFDIC");if(!raw)return;try{let x=JSON.parse(raw);state=x;apparatus.forEach(([n,t])=>{if(!state.units[n])state.units[n]={type:t,personnel:0,water:0,status:"Not Responding",assignment:"",par:"Pending"}});Object.entries(state.fields||{}).forEach(([k,v])=>{if($(k))$(k).value=v})}catch(e){console.error(e)}}
+function updateMetrics(){let a=Object.values(state.units).filter(u=>!["Not Responding","Released"].includes(u.status));$("mUnits").textContent=a.length;$("mPersonnel").textContent=a.reduce((s,u)=>s+Number(u.personnel||0),0)+state.mutualAid.reduce((s,m)=>s+Number(m.personnel||0),0);$("mWater").textContent=a.reduce((s,u)=>s+Number(u.water||0),0);$("mMutual").textContent=state.mutualAid.length;$("mPatients").textContent=Number($("patients").value||0);$("mMissing").textContent=Number($("unaccounted").value||0)}
+function tick(){if(state.startTime){let s=Math.floor((Date.now()-state.startTime)/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60);$("mDuration").textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`}}
+function resetIncident(){if(confirm("Clear all incident data and begin a new incident?")){localStorage.removeItem("elsaFDIC");location.reload()}}
+init();
+</script>
+</body>
+</html>
